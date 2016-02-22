@@ -1,0 +1,7 @@
+requests
+lxml
+psycopg2==2.6.1
+sqlalchemy
+awesome-slugify
+django
+djangorestframework

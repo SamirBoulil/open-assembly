@@ -1,0 +1,153 @@
+# coding: utf-8
+
+import os 
+import json
+import time
+from django.core.exceptions import ObjectDoesNotExist
+from slugify import slugify
+from open_assembly.models import Deputy
+from open_assembly.models import Mandate
+from open_assembly.models import Circonscription
+
+
+def import_deputies(filepath):
+    """ Loads a list of deputies
+    """
+    with open(filepath, 'r') as deputy_file:
+        print("loaded file")
+        deputy_list = json.load(deputy_file)
+        i = 0
+        for deputy in deputy_list['export']['acteurs']['acteur']:
+            import_deputy(deputy)
+            i=i+1
+
+        print("%d deputies were loaded" % i)
+
+
+def import_deputy(deputy_info):
+    """
+    Loads information about deputies in the database like, personal information,
+    circoscription where they were elected as well as their mandates.
+
+    :param deputy_info: deputy information
+    :type deputy_info: dict
+    """
+    mandate_info = get_assembly_mandate(deputy_info)
+    if mandate_info is not False:
+        deputy = get_or_instanciate_deputy(deputy_info)
+        circonscription = get_or_instanciate_circonscription(mandate_info)
+        mandate = get_or_instanciate_mandate(mandate_info)
+
+        mandate.circonscription = circonscription
+        mandate.deputy = deputy
+
+        print("Loaded %s" % deputy)
+        print("Circo :\n%s" % circonscription)
+        print("mandate :\n%s" % mandate)
+
+        deputy.save()
+        circonscription.save()
+        mandate.save()
+    
+
+def get_assembly_mandate(deputy_info):
+    """ returns wether the deputy has a assembly mandate
+
+    :param deputy_info: deputy information
+    :type deputy_info: dict
+    :returns: true if is an assembly deputy
+    :rtype: boolean|mandate dict object
+    """
+    for mandate in deputy_info['mandats']['mandat']:
+        if mandate.get('typeOrgane', '') == "ASSEMBLEE":
+            return mandate
+    return False
+
+def get_deputy_email(deputy_info):
+    """ Returns the email of a deputy  if available
+
+    :param deputy_info: deputy information
+    :type deputy_info: dict
+    :returns: email address or None
+    """
+    for address in deputy_info['adresses']['adresse']:
+        if address['@xsi:type'] == 'AdresseMail_Type' and address['valElec'].find('depute975') == -1:
+            return address['valElec']
+    return None
+
+
+def get_or_instanciate_deputy(deputy_info):
+    """ Creates or retrieves information about a deputy
+
+    :param deputy_info: information about a deputy
+    :type deputy_info: dict
+    :returns: model representing a deputy
+    """
+    try:
+        return Deputy.objects.get(uid=deputy_info['uid']['#text'])
+
+    except ObjectDoesNotExist:
+        deputy = Deputy()
+
+        deputy.uid = deputy_info['uid']['#text']
+        deputy.name = deputy_info['etatCivil']['ident']['nom']
+        deputy.surname = deputy_info['etatCivil']['ident']['prenom']
+        deputy.slug = slugify(deputy.name + '_' + deputy.surname)
+        deputy.sex = deputy_info['etatCivil']['ident']['civ'] == 'Mme' # 1 = Women
+        deputy.mail = get_deputy_email(deputy_info)
+        deputy.birth_date = deputy_info['etatCivil']['infoNaissance']['dateNais']
+        deputy.birth_town = deputy_info['etatCivil']['infoNaissance']['villeNais']
+        deputy.birth_department = deputy_info['etatCivil']['infoNaissance']['depNais']
+        deputy.birth_country = deputy_info['etatCivil']['infoNaissance']['paysNais']
+        deputy.work_name = deputy_info['profession']['libelleCourant']
+        deputy.work_category = deputy_info['profession']['socProcINSEE']['catSocPro']
+        deputy.work_familly = deputy_info['profession']['socProcINSEE']['famSocPro']
+
+        return deputy
+
+
+def get_or_instanciate_circonscription(mandate_info):
+    """ Creates or retrieves information about a circonscription 
+
+    :param mandate_info: information about a mandate
+    :type mandate_info: dict
+    :returns: model representing a circonscription 
+    """
+    try:
+        return Circonscription.objects.get(
+            num_circo=mandate_info['election']['lieu']['numCirco'],
+            num_department=mandate_info['election']['lieu']['numDepartement'],
+            region=mandate_info['election']['lieu']['region'])
+
+    except ObjectDoesNotExist:
+        circonscription = Circonscription()
+
+        circonscription.departement = mandate_info['election']['lieu']['departement']
+        circonscription.num_circo  = mandate_info['election']['lieu']['numCirco']
+        circonscription.num_department = mandate_info['election']['lieu']['numDepartement']
+        circonscription.region = mandate_info['election']['lieu']['region']
+
+        return circonscription
+
+
+def get_or_instanciate_mandate(mandate_info):
+    """ Creates or retrieves information about a mandate
+
+    :param mandate_info: information about a mandate
+    :type mandate_info: dict
+    :returns: model representing a  mandate
+    """
+    try:
+        return Mandate.objects.get(uid=mandate_info['uid'])
+
+    except ObjectDoesNotExist:
+        mandate = Mandate()
+
+        mandate.uid = mandate_info['uid']
+        mandate.mandat_start_date = mandate_info['mandature']['datePriseFonction']
+        mandate.seat_number = mandate_info['mandature']['placeHemicycle']
+        mandate.election_cause_mandat = mandate_info['election']['causeMandat']
+        mandate.legislature = mandate_info['legislature']
+
+        return  mandate
+
