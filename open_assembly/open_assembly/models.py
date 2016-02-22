@@ -14,11 +14,11 @@ class Deputy(models.Model):
     mail = models.TextField()
     birth_date = models.TextField()
     birth_town = models.TextField()
-    birth_department = models.TextField()
-    birth_country = models.TextField()
-    work_name = models.TextField()
-    work_category = models.TextField()
-    work_familly = models.TextField()
+    birth_department = models.TextField(blank=True, null=True)
+    birth_country = models.TextField(blank=True, null=True)
+    work_name = models.TextField(blank=True, null=True)
+    work_category = models.TextField(blank=True, null=True)
+    work_familly = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.surname)

@@ -38,15 +38,12 @@ def import_deputy(deputy_info):
         circonscription = get_or_instanciate_circonscription(mandate_info)
         mandate = get_or_instanciate_mandate(mandate_info)
 
-        mandate.circonscription = circonscription
-        mandate.deputy = deputy
-
-        print("Loaded %s" % deputy)
-        print("Circo :\n%s" % circonscription)
-        print("mandate :\n%s" % mandate)
-
+        # import pdb; pdb.set_trace()
         deputy.save()
         circonscription.save()
+
+        mandate.circonscription_id = circonscription.id
+        mandate.deputy = deputy
         mandate.save()
     
 
@@ -88,7 +85,6 @@ def get_or_instanciate_deputy(deputy_info):
 
     except ObjectDoesNotExist:
         deputy = Deputy()
-
         deputy.uid = deputy_info['uid']['#text']
         deputy.name = deputy_info['etatCivil']['ident']['nom']
         deputy.surname = deputy_info['etatCivil']['ident']['prenom']
@@ -116,16 +112,14 @@ def get_or_instanciate_circonscription(mandate_info):
     try:
         return Circonscription.objects.get(
             num_circo=mandate_info['election']['lieu']['numCirco'],
-            num_department=mandate_info['election']['lieu']['numDepartement'],
-            region=mandate_info['election']['lieu']['region'])
+            num_department=mandate_info['election']['lieu']['numDepartement'])
 
     except ObjectDoesNotExist:
         circonscription = Circonscription()
-
         circonscription.departement = mandate_info['election']['lieu']['departement']
         circonscription.num_circo  = mandate_info['election']['lieu']['numCirco']
         circonscription.num_department = mandate_info['election']['lieu']['numDepartement']
-        circonscription.region = mandate_info['election']['lieu']['region']
+        circonscription.region = '' if mandate_info['election']['lieu']['region'] is None else mandate_info['election']['lieu']['region'] 
 
         return circonscription
 
@@ -142,10 +136,9 @@ def get_or_instanciate_mandate(mandate_info):
 
     except ObjectDoesNotExist:
         mandate = Mandate()
-
         mandate.uid = mandate_info['uid']
         mandate.mandat_start_date = mandate_info['mandature']['datePriseFonction']
-        mandate.seat_number = mandate_info['mandature']['placeHemicycle']
+        mandate.seat_number = '' if mandate_info['mandature']['placeHemicycle'] is None else mandate_info['mandature']['placeHemicycle'] 
         mandate.election_cause_mandat = mandate_info['election']['causeMandat']
         mandate.legislature = mandate_info['legislature']
 
