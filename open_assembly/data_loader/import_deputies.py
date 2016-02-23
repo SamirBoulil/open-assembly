@@ -3,6 +3,7 @@
 import os 
 import json
 import time
+from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from slugify import slugify
 from open_assembly.models import Deputy
@@ -19,7 +20,7 @@ def import_deputies(filepath):
         i = 0
         for deputy in deputy_list['export']['acteurs']['acteur']:
             import_deputy(deputy)
-            i=i+1
+            i = i+1
 
         print("%d deputies were loaded" % i)
 
@@ -34,17 +35,9 @@ def import_deputy(deputy_info):
     """
     mandate_info = get_assembly_mandate(deputy_info)
     if mandate_info is not False:
-        deputy = get_or_instanciate_deputy(deputy_info)
-        circonscription = get_or_instanciate_circonscription(mandate_info)
-        mandate = get_or_instanciate_mandate(mandate_info)
-
-        # import pdb; pdb.set_trace()
-        deputy.save()
-        circonscription.save()
-
-        mandate.circonscription_id = circonscription.id
-        mandate.deputy = deputy
-        mandate.save()
+        deputy = get_or_create_deputy(deputy_info)
+        circonscription = get_or_create_circonscription(mandate_info)
+        mandate = get_or_create_mandate(mandate_info, deputy, circonscription)
     
 
 def get_assembly_mandate(deputy_info):
@@ -73,7 +66,7 @@ def get_deputy_email(deputy_info):
     return None
 
 
-def get_or_instanciate_deputy(deputy_info):
+def get_or_create_deputy(deputy_info):
     """ Creates or retrieves information about a deputy
 
     :param deputy_info: information about a deputy
@@ -81,28 +74,29 @@ def get_or_instanciate_deputy(deputy_info):
     :returns: model representing a deputy
     """
     try:
-        return Deputy.objects.get(uid=deputy_info['uid']['#text'])
+        return Deputy.objects.get(id=deputy_info['uid']['#text'])
 
     except ObjectDoesNotExist:
         deputy = Deputy()
-        deputy.uid = deputy_info['uid']['#text']
+        deputy.id = deputy_info['uid']['#text']
         deputy.name = deputy_info['etatCivil']['ident']['nom']
         deputy.surname = deputy_info['etatCivil']['ident']['prenom']
         deputy.slug = slugify(deputy.name + '_' + deputy.surname)
         deputy.sex = deputy_info['etatCivil']['ident']['civ'] == 'Mme' # 1 = Women
         deputy.mail = get_deputy_email(deputy_info)
-        deputy.birth_date = deputy_info['etatCivil']['infoNaissance']['dateNais']
+        deputy.birth_date = datetime.strptime(deputy_info['etatCivil']['infoNaissance']['dateNais'], '%Y-%m-%d')
         deputy.birth_town = deputy_info['etatCivil']['infoNaissance']['villeNais']
         deputy.birth_department = deputy_info['etatCivil']['infoNaissance']['depNais']
         deputy.birth_country = deputy_info['etatCivil']['infoNaissance']['paysNais']
         deputy.work_name = deputy_info['profession']['libelleCourant']
         deputy.work_category = deputy_info['profession']['socProcINSEE']['catSocPro']
         deputy.work_familly = deputy_info['profession']['socProcINSEE']['famSocPro']
+        deputy.save()
 
         return deputy
 
 
-def get_or_instanciate_circonscription(mandate_info):
+def get_or_create_circonscription(mandate_info):
     """ Creates or retrieves information about a circonscription 
 
     :param mandate_info: information about a mandate
@@ -120,11 +114,11 @@ def get_or_instanciate_circonscription(mandate_info):
         circonscription.num_circo  = mandate_info['election']['lieu']['numCirco']
         circonscription.num_department = mandate_info['election']['lieu']['numDepartement']
         circonscription.region = '' if mandate_info['election']['lieu']['region'] is None else mandate_info['election']['lieu']['region'] 
-
+        circonscription.save()
         return circonscription
 
 
-def get_or_instanciate_mandate(mandate_info):
+def get_or_create_mandate(mandate_info, deputy, circonscription):
     """ Creates or retrieves information about a mandate
 
     :param mandate_info: information about a mandate
@@ -132,15 +126,18 @@ def get_or_instanciate_mandate(mandate_info):
     :returns: model representing a  mandate
     """
     try:
-        return Mandate.objects.get(uid=mandate_info['uid'])
+        return Mandate.objects.get(id=mandate_info['uid'])
 
     except ObjectDoesNotExist:
         mandate = Mandate()
-        mandate.uid = mandate_info['uid']
-        mandate.mandat_start_date = mandate_info['mandature']['datePriseFonction']
+        mandate.id = mandate_info['uid']
+        mandate.start_date = datetime.strptime(mandate_info['mandature']['datePriseFonction'], '%Y-%m-%d')
         mandate.seat_number = '' if mandate_info['mandature']['placeHemicycle'] is None else mandate_info['mandature']['placeHemicycle'] 
         mandate.election_cause_mandat = mandate_info['election']['causeMandat']
         mandate.legislature = mandate_info['legislature']
 
+        mandate.circonscription_id = circonscription.id
+        mandate.deputy = deputy
+        mandate.save()
         return  mandate
 

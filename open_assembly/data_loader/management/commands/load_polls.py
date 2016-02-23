@@ -3,13 +3,13 @@
 
 from django.core.management.base import BaseCommand, CommandError
 
-from data_loader.import_deputies import import_deputies
+from data_loader.import_polls import import_polls
 
 from data_loader.settings import DEPUTY_DATA_URL
 
 
 class Command(BaseCommand):
-    help = 'Imports decrees, deputy information and votes'
+    help = 'Import polls and votes'
 
     def add_arguments(self, parser):
         parser.add_argument('--overwrite',
@@ -21,19 +21,19 @@ class Command(BaseCommand):
 
         parser.add_argument('--path',
                 dest='path',
-                default='/var/tmp/AMO10_deputes_actifs_mandats_actifs_organes_XIV.json',
+                default='/var/tmp/Scrutins_XV.json',
                 type=str,
                 help="file path to the deputy file information")
 
     def handle(self, *args, **options):
         overwrite = options.get('overwrite')
         filepath = options.get('path')
-        filepath = '/Users/Akeneo/Downloads/AMO10_deputes_actifs_mandats_actifs_organes_XIV.json'
+        filepath = '/Users/Akeneo/Downloads/Scrutins_XIV.json'
         print("filepath %s" % filepath)
 
         if overwrite:
             raise NotImplemented("Dump all data from db feature")
             return
         
-        import_deputies(filepath)
+        import_polls(filepath)
 
