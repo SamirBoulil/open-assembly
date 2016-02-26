@@ -135,9 +135,18 @@ def get_or_create_mandate(mandate_info, deputy, circonscription):
         mandate.seat_number = '' if mandate_info['mandature']['placeHemicycle'] is None else mandate_info['mandature']['placeHemicycle'] 
         mandate.election_cause_mandat = mandate_info['election']['causeMandat']
         mandate.legislature = mandate_info['legislature']
-
         mandate.circonscription_id = circonscription.id
-        mandate.deputy = deputy
+
+        if 'suppleants' in mandate_info.keys() \
+                and mandate_info['suppleants'] is not None:
+                substitute, _created = Deputy.objects.get_or_create(id=mandate_info['suppleants']['suppleant']['suppleantRef'])
+                substitute.save()
+                deputy.substitutes.add(substitute)
+                deputy.save()
+
         mandate.save()
+        mandate.deputies.add(deputy)
+        mandate.save()
+
         return  mandate
 

@@ -35,32 +35,68 @@ def import_poll(poll_info):
     poll.save()
 
     votes = []
+    i=0
     for group_info in poll_info['ventilationVotes']['organe']['groupes']['groupe']:
         group, _created = Group.objects.get_or_create(id=group_info['organeRef'], name='')
         group.save()
+        i = i+1
 
         # not voting people
-        create_or_update_votes(group_info['vote']['decompteNominatif']['nonVotants']['votant'], 3, group, poll)
-        create_or_update_votes(group_info['vote']['decompteNominatif']['pours']['votant'], 1, group)
-        create_or_update_votes(group_info['vote']['decompteNominatif']['contre']['votant'], 0, group)
-        create_or_update_votes(group_info['vote']['decompteNominatif']['abstentions']['votant'], 2, group)
+        try:
+            create_or_update_votes(group_info['vote']['decompteNominatif']['nonVotants']['votant'], 3, group, poll)
+        except Exception as e:
+            print("No NOT VOTING votes")
+            
+        try:
+            create_or_update_votes(group_info['vote']['decompteNominatif']['pours']['votant'], 1, group, poll)
+        except Exception as e:
+            print("No YES votes")
+
+        try:
+            create_or_update_votes(group_info['vote']['decompteNominatif']['contres']['votant'], 0, group, poll)
+        except Exception as e:
+            print("No NO votes")
+
+        try:
+            create_or_update_votes(group_info['vote']['decompteNominatif']['abstentions']['votant'], 2, group, poll)
+        except Exception as e:
+            print("No abstention votes")
+    print("number of votes loaded %d" % i)
 
 
 def create_or_update_votes(votes, vote_value, group, poll):
     """
     """
-    for vote_info in votes:
+    if isinstance(votes, list):
+        for vote_info in votes:
+            get_or_update_vote(vote_info, vote_value, group, poll)
+    else:
+        get_or_update_vote(votes, vote_value, group, poll)
+
+def get_or_update_vote(vote_info, vote_value, group, poll):
+    try:
         deputy = Deputy.objects.get(id=vote_info['acteurRef'])
         if deputy.group is None:
             deputy.group = group
             deputy.save()
+        mandate, _created = Mandate.objects.get_or_create(
+                id=vote_info['mandatRef']
+        )
+        mandate.save()
 
-        import pdb; pdb.set_trace()
         vote, _created = Vote.objects.get_or_create(
-                mandate__id=vote_info['mandatRef'],
-                deputy__id=deputy.id, decision=vote_value,
+                mandate=mandate,
+                deputy_id=deputy.id,
+                decision=vote_value,
                 poll=poll)
         vote.save()
+    except ObjectDoesNotExist as e:
+        print(e)
+        print("Unkown deputy ref: %s" % vote_info['acteurRef'])
+    except Exception as e:
+        print(e)
+        import pdb; pdb.set_trace()
+        print(e)
 
          
 def get_or_instanciate_poll(poll_info):

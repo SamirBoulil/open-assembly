@@ -9,19 +9,20 @@ class Deputy(models.Model):
     """ Model linked to concrete data table
     """
     id = models.TextField(primary_key=True)
-    name = models.TextField()
-    surname = models.TextField()
-    slug = models.TextField()
-    sex = models.TextField()
-    mail = models.TextField()
-    birth_date = models.DateField()
-    birth_town = models.TextField()
+    name = models.TextField(blank=True, null=True) # all blank=True because no information about substitues is available
+    surname = models.TextField(blank=True, null=True)
+    slug = models.TextField(blank=True, null=True)
+    sex = models.TextField(blank=True, null=True)
+    mail = models.TextField(blank=True, null=True)
+    birth_date = models.DateField(blank=True, null=True)
+    birth_town = models.TextField(blank=True, null=True)
     birth_department = models.TextField(blank=True, null=True)
     birth_country = models.TextField(blank=True, null=True)
     work_name = models.TextField(blank=True, null=True)
     work_category = models.TextField(blank=True, null=True)
     work_familly = models.TextField(blank=True, null=True)
     group = models.ForeignKey(Group, related_name='deputies', blank=True, null=True)
+    substitute = models.ForeignKey('Deputy', related_name='substitutes', blank=True, null=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.surname)
@@ -44,12 +45,12 @@ class Mandate(models.Model):
     """ A deputy has a mandate.
     """
     id = models.TextField(primary_key=True)
-    start_date = models.DateField()
-    seat_number = models.TextField()
-    election_cause = models.TextField()
-    legislature = models.TextField()
-    deputy = models.ForeignKey(Deputy, related_name='mandates')
-    circonscription = models.ForeignKey(Circonscription, related_name='mandates')
+    start_date = models.DateField(blank=True, null=True) #should not be nullable
+    seat_number = models.TextField(blank=True, null=True) #should not be nullable
+    election_cause = models.TextField(blank=True, null=True) #should not be nullable
+    legislature = models.TextField(blank=True, null=True) #should not be nullable
+    deputies = models.ManyToManyField(Deputy, related_name='mandates') 
+    circonscription = models.ForeignKey(Circonscription, related_name='mandates', blank=True, null=True) #should not be nullable
 
     def __str__(self):
         return "%s %s %s" % (self.seat_number, self.legislature, self.election_cause)
@@ -60,7 +61,7 @@ class Poll(models.Model):
     """
     id = models.TextField(primary_key=True)
     title = models.TextField()
-    asked_by = models.TextField()
+    asked_by = models.TextField(blank=True, null=True)
     poll_date = models.DateField()
     session_ref = models.TextField()
     sceance_ref = models.TextField()

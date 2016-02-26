@@ -28,8 +28,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         overwrite = options.get('overwrite')
         filepath = options.get('path')
-        filepath = '/Users/Akeneo/Downloads/Scrutins_XIV.json'
-        print("filepath %s" % filepath)
 
         if overwrite:
             raise NotImplemented("Dump all data from db feature")

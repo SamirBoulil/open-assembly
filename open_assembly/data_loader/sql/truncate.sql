@@ -1,0 +1,3 @@
+﻿TRUNCATE open_assembly_circonscription CASCADE;
+TRUNCATE open_assembly_deputy CASCADE;
+TRUNCATE open_assembly_mandate CASCADE;
