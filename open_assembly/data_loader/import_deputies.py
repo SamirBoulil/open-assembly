@@ -110,7 +110,7 @@ def get_or_create_circonscription(mandate_info):
 
     except ObjectDoesNotExist:
         circonscription = Circonscription()
-        circonscription.departement = mandate_info['election']['lieu']['departement']
+        circonscription.department = mandate_info['election']['lieu']['departement']
         circonscription.num_circo  = mandate_info['election']['lieu']['numCirco']
         circonscription.num_department = mandate_info['election']['lieu']['numDepartement']
         circonscription.region = '' if mandate_info['election']['lieu']['region'] is None else mandate_info['election']['lieu']['region'] 

@@ -83,7 +83,7 @@ DATABASES = {
         'OPTIONS': {
             'options': '-c search_path=channel,common,public'
         },
-        'NAME': 'open_assembly',
+        'NAME': 'open_assembly2',
         'USER': 'Samir',
         'PASSWORD': 'password_test',
         'HOST': '127.0.0.1',
@@ -129,3 +129,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    # 'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
+

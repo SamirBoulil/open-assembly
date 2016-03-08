@@ -74,6 +74,7 @@ class Poll(models.Model):
     number_votes_yes = models.IntegerField()
     number_votes_dk = models.IntegerField()
     number_votes_not_voting = models.IntegerField()
+    is_solemn = models.BooleanField(default=False)
 
 
 class Vote(models.Model):
@@ -83,5 +84,3 @@ class Vote(models.Model):
     decision = models.IntegerField() #0:no 1:OK 2:Abs 3:Not voting
     poll = models.ForeignKey(Poll, related_name="votes")
     mandate = models.ForeignKey(Mandate, related_name="votes")
-    deputy = models.ForeignKey(Deputy, related_name="votes")
-
