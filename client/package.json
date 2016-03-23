@@ -4,7 +4,7 @@
   "description": "open-assembly is a software that let's you browse the votes of your local deputies",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --port 8001",
+    "start": "webpack-dev-server --port 8001 --watch",
     "prod": "webpack -p"
   },
   "repository": {
