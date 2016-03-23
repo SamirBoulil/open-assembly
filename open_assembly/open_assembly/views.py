@@ -6,7 +6,6 @@ from rest_framework import filters
 from .models import Deputy
 from .models import Poll
 from .models import Circonscription 
-
 from .models import Vote
 
 from .serializers import DeputySerializer
@@ -15,11 +14,11 @@ from .serializers import VoteSerializer
 from .serializers import PollForDepartmentSerializer
 
 
-class CirconscriptionViewSet(generics.ListAPIView):
+class DepartmentViewSet(generics.ListAPIView):
+    queryset = Circonscription.objects.all().distinct('num_department')
     serializer_class = CirconscriptionSerializer
-
-    def get_queryset(self):
-        return Circonscription.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('num_department', 'department', 'region')
 
 
 class DeputiesForDepartmentViewSet(generics.ListAPIView):

@@ -11,8 +11,10 @@ from .models import Vote
 
 
 class CirconscriptionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Circonscription
+        exclude = ('id',)
 
 
 class GroupSerializer(serializers.ModelSerializer):

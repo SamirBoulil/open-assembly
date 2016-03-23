@@ -22,14 +22,14 @@ from django.contrib import admin
 from django.conf.urls import patterns, include, url
 
 from .views import DeputiesForDepartmentViewSet
-from .views import CirconscriptionViewSet
+from .views import DepartmentViewSet
 from .views import PollsForDepartmentViewSet
 from .views import VotesForPollAndDepartmentViewSet
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # MVP
-    url(r'^departments$', CirconscriptionViewSet.as_view()),
+    url(r'^departments$', DepartmentViewSet.as_view()),
     url(r'^departments/(?P<num_department>.*)/deputies$', DeputiesForDepartmentViewSet.as_view()),
     url(r'^departments/(?P<num_department>.*)/polls$', PollsForDepartmentViewSet.as_view()),
     url(r'^departments/(?P<num_department>.*)/polls/(?P<poll_id>.*)/votes$', VotesForPollAndDepartmentViewSet.as_view()),
