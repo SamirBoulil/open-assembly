@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os 
+import os
 import json
 import time
 from datetime import datetime
@@ -54,15 +54,20 @@ def get_assembly_mandate(deputy_info):
     return False
 
 def get_deputy_email(deputy_info):
-    """ Returns the email of a deputy  if available
+    """ Returns the email of a deputy if available
 
     :param deputy_info: deputy information
     :type deputy_info: dict
     :returns: email address or None
     """
-    for address in deputy_info['adresses']['adresse']:
-        if address['@xsi:type'] == 'AdresseMail_Type' and address['valElec'].find('depute975') == -1:
+    if isinstance(deputy_info['adresses']['adresse'], dict):
+        address = deputy_info['adresses']['adresse']
+        if address['@xsi:type'] == 'AdresseMail_Type' and address['valElec'] != '':
             return address['valElec']
+    else:
+        for address in deputy_info['adresses']['adresse']:
+            if address['@xsi:type'] == 'AdresseMail_Type' and address['valElec'] != '':
+                return address['valElec']
     return None
 
 
@@ -97,11 +102,11 @@ def get_or_create_deputy(deputy_info):
 
 
 def get_or_create_circonscription(mandate_info):
-    """ Creates or retrieves information about a circonscription 
+    """ Creates or retrieves information about a circonscription
 
     :param mandate_info: information about a mandate
     :type mandate_info: dict
-    :returns: model representing a circonscription 
+    :returns: model representing a circonscription
     """
     try:
         return Circonscription.objects.get(
@@ -113,7 +118,7 @@ def get_or_create_circonscription(mandate_info):
         circonscription.department = mandate_info['election']['lieu']['departement']
         circonscription.num_circo  = mandate_info['election']['lieu']['numCirco']
         circonscription.num_department = mandate_info['election']['lieu']['numDepartement']
-        circonscription.region = '' if mandate_info['election']['lieu']['region'] is None else mandate_info['election']['lieu']['region'] 
+        circonscription.region = '' if mandate_info['election']['lieu']['region'] is None else mandate_info['election']['lieu']['region']
         circonscription.save()
         return circonscription
 
@@ -132,7 +137,7 @@ def get_or_create_mandate(mandate_info, deputy, circonscription):
         mandate = Mandate()
         mandate.id = mandate_info['uid']
         mandate.start_date = datetime.strptime(mandate_info['mandature']['datePriseFonction'], '%Y-%m-%d')
-        mandate.seat_number = '' if mandate_info['mandature']['placeHemicycle'] is None else mandate_info['mandature']['placeHemicycle'] 
+        mandate.seat_number = '' if mandate_info['mandature']['placeHemicycle'] is None else mandate_info['mandature']['placeHemicycle']
         mandate.election_cause_mandat = mandate_info['election']['causeMandat']
         mandate.legislature = mandate_info['legislature']
         mandate.circonscription_id = circonscription.id

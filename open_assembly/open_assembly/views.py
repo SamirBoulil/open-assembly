@@ -5,7 +5,7 @@ from rest_framework import filters
 
 from .models import Deputy
 from .models import Poll
-from .models import Circonscription 
+from .models import Circonscription
 from .models import Vote
 
 from .serializers import DeputySerializer
@@ -15,10 +15,18 @@ from .serializers import PollForDepartmentSerializer
 
 
 class DepartmentViewSet(generics.ListAPIView):
-    queryset = Circonscription.objects.all().distinct('num_department')
+    # queryset = Circonscription.objects.all().distinct('num_department')
     serializer_class = CirconscriptionSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('num_department', 'department', 'region')
+
+    def get_queryset(self):
+        """ Returns the list of department without the circonscription and id
+        """
+        return list(Circonscription.objects.raw('''
+            SELECT DISTINCT num_department, department, region
+            FROM open_assembly_circonscription
+            ORDER BY num_department'''))
 
 
 class DeputiesForDepartmentViewSet(generics.ListAPIView):
