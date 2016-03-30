@@ -2,10 +2,11 @@
 
 from rest_framework import generics
 from rest_framework import filters
+from rest_framework.pagination import LimitOffsetPagination
 
 from .models import Deputy
 from .models import Poll
-from .models import Circonscription 
+from .models import Circonscription
 from .models import Vote
 
 from .serializers import DeputySerializer
@@ -15,10 +16,24 @@ from .serializers import PollForDepartmentSerializer
 
 
 class DepartmentViewSet(generics.ListAPIView):
-    queryset = Circonscription.objects.all().distinct('num_department')
     serializer_class = CirconscriptionSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('num_department', 'department', 'region')
+
+    def get_queryset(self):
+        """ Returns the list of department without the circonscription and id
+        """
+
+        circonscriptions = list(Circonscription.objects.raw('''
+            SELECT DISTINCT id, num_department, department, region
+            FROM open_assembly_circonscription
+            ORDER BY num_department'''))
+
+        distinctDepartments = []
+        for department in circonscriptions:
+            alreadyAdded = [x for x in filter(lambda x: x.num_department == department.num_department, distinctDepartments)]
+            if len(alreadyAdded) == 0:
+                distinctDepartments.append(department)
+
+        return distinctDepartments
 
 
 class DeputiesForDepartmentViewSet(generics.ListAPIView):
@@ -31,10 +46,10 @@ class DeputiesForDepartmentViewSet(generics.ListAPIView):
 
 
 class PollsForDepartmentViewSet(generics.ListAPIView):
-    page_size_query_param = 'page_size'
-    page_size = 10
-    max_page_size = 100
     serializer_class = PollForDepartmentSerializer
+    pagination_class = LimitOffsetPagination
+    page_size_query_param = 'page_size'
+    page_size = 100
 
     def get_queryset(self):
         num_department = self.kwargs['num_department']

@@ -14,7 +14,7 @@ class CirconscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Circonscription
-        exclude = ('id',)
+        exclude = ('id', 'num_circo')
 
 
 class GroupSerializer(serializers.ModelSerializer):
