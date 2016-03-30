@@ -38,7 +38,7 @@ def import_deputy(deputy_info):
         deputy = get_or_create_deputy(deputy_info)
         circonscription = get_or_create_circonscription(mandate_info)
         mandate = get_or_create_mandate(mandate_info, deputy, circonscription)
-    
+
 
 def get_assembly_mandate(deputy_info):
     """ returns wether the deputy has a assembly mandate
