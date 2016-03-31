@@ -1,15 +1,11 @@
 var axios = require('axios');
 
-var SERVER_URL = 'https://127.0.0.1:8000';
-var DEPARTMENTS = '/departments/?s='
-
-function getDepartmentsForInput(input) {
-	return axios.get(SERVER_URL+DEPARTMENTS+input);
-}
+var SERVER_URL = 'http://127.0.0.1:8003';
+var DEPARTMENTS = '/departments'
 
 var helpers = {
-	getDepartmentsForInput: function(input) {
-		return axios.get(SERVER_URL+DEPARTMENTS+input);
+	getDepartments: function() {
+		return axios.get(SERVER_URL+DEPARTMENTS);
 	}
 };
 

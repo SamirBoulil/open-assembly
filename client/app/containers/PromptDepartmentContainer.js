@@ -1,26 +1,45 @@
+var axios = require('axios');
 var React = require('react');
-var PromptDepartment = require('../components/PromptDepartment');
+var Select = require('react-select');
 var ApiHelper = require('../utils/apiHelper');
 
 PromptDepartmentContainer = React.createClass({
 	getInitialState: function() {
 		return {
-			department: ''
+			"departments": []
 		};
 	},
-	handleUpdateDepartment: function(input) {
-		ApiHelper.getDepartmentsForInput(input)
+	componentDidMount: function() {
+		ApiHelper.getDepartments()
 			.then(function(json) {
-				return {options: json};
-			});
+				return axios.all(json.data.map(function(department) {
+					return {
+						"value": department.num_department,
+						"label": department.num_department + " - " + department.department + " - " + department.region
+					}
+				}));
+			})
+			.then(function(departments) {
+				this.setState({
+					departments: departments
+				});
+			}.bind(this));
 	},
 	render: function() {
 		return (
 			<div className="section">
 				<div className="container">
-					<PromptDepartment
-						department={this.state.department}
-						onUpdateDepartement={this.handleUpdateDepartment} />
+					<Select
+						clearable
+						ignoreCase
+						scrollMenuIntoView={false}
+						name="department-autocomplete"
+						placeholder="Trouver votre départment"
+						searchingText="Recherche ..."
+						searchPromptText="Trouver votre département"
+						noResultsText="Aucun département ne correspond à votre recherche"
+						options={this.state.departments}
+						onValueClick={undefined} />
 				</div>
 			</div>
 		);
