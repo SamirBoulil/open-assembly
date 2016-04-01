@@ -1,12 +1,17 @@
 var axios = require('axios');
 var React = require('react');
+var ReactRouter = require('react-router');
 var Select = require('react-select');
 var ApiHelper = require('../utils/apiHelper');
 
-PromptDepartmentContainer = React.createClass({
+var PromptDepartmentContainer = React.createClass({
+	contextTypes: {
+		router: React.PropTypes.object.isRequired
+	},
 	getInitialState: function() {
 		return {
-			"departments": []
+			departments: [],
+			selectedDepartment: ''
 		};
 	},
 	componentDidMount: function() {
@@ -14,8 +19,8 @@ PromptDepartmentContainer = React.createClass({
 			.then(function(json) {
 				return axios.all(json.data.map(function(department) {
 					return {
-						"value": department.num_department,
-						"label": department.num_department + " - " + department.department + " - " + department.region
+						value: department.num_department,
+						label: department.num_department + " - " + department.department + " - " + department.region
 					}
 				}));
 			})
@@ -25,11 +30,25 @@ PromptDepartmentContainer = React.createClass({
 				});
 			}.bind(this));
 	},
+	updateValue (newValue) {
+		this.setState({
+			selectedDepartment: newValue
+		});
+	},
+	handleClick: function(e) {
+		e.preventDefault();
+		if (this.state.selectedDepartment !== '') {
+			this.context.router.push({
+				pathname: '/department/' + this.state.selectedDepartment.value + '/polls'
+			});
+		}
+	},
 	render: function() {
 		return (
 			<div className="section">
 				<div className="container">
 					<Select
+						autofocus
 						clearable
 						ignoreCase
 						scrollMenuIntoView={false}
@@ -39,7 +58,10 @@ PromptDepartmentContainer = React.createClass({
 						searchPromptText="Trouver votre département"
 						noResultsText="Aucun département ne correspond à votre recherche"
 						options={this.state.departments}
-						onValueClick={undefined} />
+						value={this.state.selectedDepartment}
+						onChange={this.updateValue} />
+
+						<button onClick={this.handleClick}>Show me votes</button>
 				</div>
 			</div>
 		);
