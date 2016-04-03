@@ -12,7 +12,7 @@ class Deputy(models.Model):
     name = models.TextField(blank=True, null=True) # all blank=True because no information about substitues is available
     surname = models.TextField(blank=True, null=True)
     slug = models.TextField(blank=True, null=True)
-    sex = models.TextField(blank=True, null=True)
+    sex = models.NullBooleanField(blank=True, null=True)
     mail = models.TextField(blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
     birth_town = models.TextField(blank=True, null=True)

@@ -3,6 +3,7 @@
 from rest_framework import generics
 from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 
 from .models import Deputy
 from .models import Poll
@@ -13,6 +14,12 @@ from .serializers import DeputySerializer
 from .serializers import CirconscriptionSerializer
 from .serializers import VoteSerializer
 from .serializers import PollForDepartmentSerializer
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 50 
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class DepartmentViewSet(generics.ListAPIView):
@@ -47,9 +54,7 @@ class DeputiesForDepartmentViewSet(generics.ListAPIView):
 
 class PollsForDepartmentViewSet(generics.ListAPIView):
     serializer_class = PollForDepartmentSerializer
-    pagination_class = LimitOffsetPagination
-    page_size_query_param = 'page_size'
-    page_size = 100
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         num_department = self.kwargs['num_department']
