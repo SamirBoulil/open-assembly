@@ -4,6 +4,7 @@ var Select = require('react-select');
 var ApiHelper = require('../utils/apiHelper');
 
 var Deputy = require('../components/Deputy');
+var Poll = require('../components/Poll');
 
 var PollsContainer = React.createClass({
     contextTypes: {
@@ -16,21 +17,22 @@ var PollsContainer = React.createClass({
         };
     },
     componentDidMount: function() {
-        if (typeof this.props.department !== 'undefined') {
-            ApiHelper.getDeputiesForDepartment(this.props.department)
+        var department = this.props.routeParams.department;
+        if (typeof department !== 'undefined') {
+            ApiHelper.getDeputiesForDepartment(department)
             .then(function(deputiesInfo) {
                 this.setState({
-                    polls: this.state.polls,
+                    // polls: this.state.polls,
                     deputies: deputiesInfo
                 });
-            });
-            ApiHelper.getPollsForDepartment(this.props.department)
+            }.bind(this));
+            ApiHelper.getPollsForDepartment(department)
             .then(function(pollsInfo) {
                 this.setState({
                     polls: pollsInfo,
-                    deputies: this.state.deputies
+                    // deputies: this.state.deputies
                 });
-            });
+            }.bind(this));
         }
     },
     render: function() {
@@ -38,9 +40,15 @@ var PollsContainer = React.createClass({
             <div className="poll-container">
                 <div className="deputies">
                     <h1>Vos représentants à l'assemblée nationale</h1>
+                    {this.state.deputies.map(function(deputy) {
+                        return <Deputy {...deputy}></Deputy>;
+                    })}
                 </div>
                 <div className="polls">
-                    <h1>Leur votes</h1>
+                    <h1>Les votes des députés</h1>
+                    {this.state.polls.map(function(poll) {
+                        return <Poll {...poll}></Poll>;
+                    })}
                 </div>
             </div>
         );
@@ -48,10 +56,3 @@ var PollsContainer = React.createClass({
 })
 
 module.exports = PollsContainer;
-
-
-// {this.state.deputies.map(fuction(deputy) {
-//     return (
-//         <Deputy ...deputy />
-//     );
-// })}

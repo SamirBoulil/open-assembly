@@ -16,17 +16,17 @@ var PromptDepartmentContainer = React.createClass({
 	},
 	componentDidMount: function() {
 		ApiHelper.getDepartments()
-			.then(function(json) {
-				return axios.all(json.data.map(function(department) {
+			.then(function(departments) {
+				return axios.all(departments.map(function(department) {
 					return {
 						value: department.num_department,
 						label: department.num_department + " - " + department.department + " - " + department.region
 					}
 				}));
 			})
-			.then(function(departments) {
+			.then(function(processedDepartments) {
 				this.setState({
-					departments: departments
+					departments: processedDepartments
 				});
 			}.bind(this));
 	},
