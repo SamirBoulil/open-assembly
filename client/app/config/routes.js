@@ -13,12 +13,12 @@ var PollsContainer = require('../containers/PollsContainer');
 // <Route path='deputy/:deputy' component={DeputyContainer} />
 
 var routes = (
-	<Router history={hashHistory}>
-		<Route path='/' component={Main}>
-			<IndexRoute component={PromptDepartmentContainer} />
-            <Route path='department/:department/polls' component={PollsContainer} />'
-		</Route>
-	</Router>
+  <Router history={hashHistory}>
+    <Route path='/' component={Main}>
+      <IndexRoute component={PromptDepartmentContainer} />
+        <Route path='department/:department/polls' component={PollsContainer} />'
+    </Route>
+  </Router>
 );
 
 module.exports = routes;
