@@ -1,16 +1,7 @@
-@charset 'UTF-8';
+// Dependencies
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+@import '~bootstrap-sass/assets/stylesheets/_bootstrap.scss';
+@import '~react-select/scss/default.scss';
 
-/*@import 'compass/utilities';*/
-/*@import 'compass/css3';*/
-
-/*// Dependancies*/
-@import '~bootstrap/dist/css/bootstrap.css';
-@import '~font-awesome/css/font-awesome.css';
-
-/*// styles.scss*/
-/*@import 'utils/module';
-@import 'base/module';
-@import 'routes/module';
-@import 'components/module';
-@import 'layout/module';
-@import 'responsive/module';*/
+// App
+@import 'containers/containers.scss';

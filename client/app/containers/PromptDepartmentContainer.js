@@ -30,7 +30,7 @@ var PromptDepartmentContainer = React.createClass({
       });
     }.bind(this));
   },
-  updateValue (newValue) {
+  updateValue: function (newValue) {
     this.setState({
       selectedDepartment: newValue
     });
@@ -45,23 +45,28 @@ var PromptDepartmentContainer = React.createClass({
   },
   render: function() {
     return (
-      <div className="section">
-        <div className="container">
-          <Select
-          autofocus
-          clearable
-          ignoreCase
-          scrollMenuIntoView={false}
-          name="department-autocomplete"
-          placeholder="Trouver votre départment"
-          searchingText="Recherche ..."
-          searchPromptText="Trouver votre département"
-          noResultsText="Aucun département ne correspond à votre recherche"
-          options={this.state.departments}
-          value={this.state.selectedDepartment}
-          onChange={this.updateValue} />
-          <button onClick={this.handleClick}>Show me votes</button>
-        </div>
+        <div className="home">
+          <div className="header">
+            <h1>Trouvez en un instant les votes de vos représentants à l'assemblée nationale</h1>
+          </div>
+          <div className="form">
+            <Select
+              ref="departmentSelect"
+              autofocus
+              clearable
+              ignoreCase
+              scrollMenuIntoView={false}
+              className="form__prompt"
+              name="department-autocomplete"
+              placeholder="Trouver votre départment"
+              searchingText="Recherche ..."
+              searchPromptText="Trouver votre département"
+              noResultsText="Aucun département ne correspond à votre recherche"
+              options={this.state.departments}
+              value={this.state.selectedDepartment}
+              onChange={this.updateValue} />
+            <button className="form__search" onClick={this.handleClick}>Show me votes</button>
+          </div>
       </div>
       );
   }
