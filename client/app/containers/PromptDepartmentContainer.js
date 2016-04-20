@@ -52,6 +52,7 @@ var PromptDepartmentContainer = React.createClass({
           <div className="form">
             <Select
               ref="departmentSelect"
+              autosize
               autofocus
               clearable
               ignoreCase

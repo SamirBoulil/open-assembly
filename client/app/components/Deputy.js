@@ -3,13 +3,17 @@ var PropTypes = React.PropTypes;
 
 var Deputy = function(props) {
   var sexLabel = props.sex ? "Mme" : "Mr.";
+  props.age = "12";
   return (
-    <div className="deputy-wrapper">
-      <h1>{sexLabel} {props.surname} {props.name} ({props.birth_date})</h1>
-      <p>Originaire de: {props.birth_town} - {props.birth_department} - {props.birth_country}</p>
-      <p>Profession: {props.work_name} ({props.work_familly})</p>
-      <p>Groupement politique: {props.group_name} ({props.group_id})</p>
-      <hr/>
+    <div className="card">
+      <h2 className="card__title">{props.surname} {props.name}</h2>
+      <div className="card__pane_1">
+        <div>{props.group_name} ({props.group_id})</div>
+      </div>
+      <div className="card__pane_2">
+        <div className="">Profession: {props.work_name} ({props.work_familly})</div>
+        <div className="">age: 54 ans</div>
+      </div>
     </div>
     );
 }
@@ -55,3 +59,4 @@ module.exports = Deputy;
 //     "group": "PO656002",
 //     "substitute": null
 // },
+// <p>Originaire de: {props.birth_town} - {props.birth_department} - {props.birth_country}</p>

@@ -5,7 +5,7 @@ var Poll = function(props) {
   var resultLabel = props.is_accepted ? "Accepté" : "Refusé";
   return (
     <div className="poll">
-      <h1>{props.poll_date} - {props.title}</h1>
+      <h2>{props.poll_date} - {props.title}</h2>
       <p>Resultat: {resultLabel}</p>
       <p>Reference de session: {resultLabel}</p>
       <hr/>

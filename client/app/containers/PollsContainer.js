@@ -35,15 +35,15 @@ var PollsContainer = React.createClass({
   },
   render: function() {
     return (
-      <div className="poll-container">
-        <div className="deputies">
-          <h1>Vos représentants à l'assemblée nationale</h1>
+      <div className="polls-container">
+        <h1>Vos représentants à l'assemblée nationale</h1>
+        <div className="polls-container__deputies">
           {this.state.deputies.map(function(deputy) {
             return <Deputy {...deputy}></Deputy>;
           })}
         </div>
-        <div className="polls">
-          <h1>Les votes des députés</h1>
+        <h1>Les votes des députés</h1>
+        <div className="polls-container__polls">
           {this.state.polls.map(function(poll) {
             return <Poll {...poll}></Poll>;
           })}
